@@ -1,41 +1,20 @@
 import numpy as np
 import pandas as pd
-import matplotlib.pyplot as plt
-
-
-class LinearRegression:
-    def __init__(self, add_bias = True)
-    self.add_bias = add_bias
-    pass
-
-    def fit(self,x,y):
-        if x.dim == 1:
-            x = x[:,None]
-        N = x.shape[0]
-        if self.add_bias:
-            x = np.column_stack ([x,np.ones(N)])
-        self.w = np.linalg.lstsq(x,y)[0]
-        return self
-
-    def predict(self,x)
-        if self.add_bias:
-            x = np.column_stack ([x,np.ones(N)])
-        yh = x@self.w
-        return yh
-    
-
 
 class LinearRegression:
     '''
-        Constructor for the Linear Regression with analytical. It uses bias. It also
-        initializes the weight, mean and std.
+        Constructor for the Linear Regression with mini‑batch stochastic gradient descent. It uses learning rate,
+        iteration number, batch size, bias and verbose. It also initializes the weight, mean and std.
     '''
-    def __init__(self, add_bias):
+    def __init__(self, lr, n_iter, batch_size, add_bias, verbose):
+        self.lr = lr  # learning rate
+        self.n_iter = n_iter  # number of gradient-descent iterations
+        self.batch_size = batch_size  # row number for each gradient step
         self.add_bias = add_bias  # bias to prepend a column of ones (the intercept term)
+        self.verbose = verbose  # if true, prints the mean‑squared error every 100 iterations
         self.w = None  # weight/coefficient
         self.mean = None  # used for standardisation
         self.std = None  # standard deviation
-
 
     def prepare(self, x: pd.DataFrame) -> pd.DataFrame:
         '''
@@ -59,32 +38,59 @@ class LinearRegression:
 
     def fit(self, x: pd.DataFrame, y: pd.Series) -> "LinearRegression":
         '''
-            Fit method to fit X and Y datas through pandas and train the linear model by analytical solution.
-            It uses pandas DataFrame for the X and Series for the Y.
+            Fit method to fit X and Y datas through pandas and train the linear model by gradient descent.
+            It uses pandas DataFrame for the X and Series for the Y. For the n iterations, it returns batch X and Y values
+            from random subset of indices calculates gradient from differences between predicted Y and batch Y values and
+            calculates the weight. If verbose it prints the mean square error for each 100 iterations.
         '''
-        x = self.prepare(x)
-        y = pd.Series(y).astype("float64")
+        x = self.prepare(x)  # standardisation and adding bias through prepare method
+        y = pd.Series(y).astype('float64')  # check if Y is series.
 
-        # convert to numpy for speed
-        x_np = x.to_numpy()  # n_samples, n_features
-        y_np = y.to_numpy()[:, None]  # n_samples, 1
+        x_np = x.to_numpy()
+        y_np = y.to_numpy()
 
-        # w = (X^T*X)^-1*X^T*Y
-        xt_x = x_np.T.dot(x_np)
-        xt_y = x_np.T.dot(y_np)
-        w_np = np.linalg.pinv(xt_x).dot(xt_y)  # n_features, 1
+        n_samples, n_features = x_np.shape # n samples
+        w_np = np.zeros(n_features)   # initialize weight as zero
+        batch_size = self.batch_size
+        # defines n samples as batch size if size is none or bigger than n samples
+        if batch_size is None or batch_size >= n_samples:
+            batch_size = n_samples
 
-        # store weights back as a pandas series
-        self.w = pd.Series(
-            w_np.ravel(), # flattens the array into 1-D array
-            index=x.columns
-        )
+        # number of batches per iteration
+        n_batches = int(np.ceil(n_samples / batch_size))
+
+        for epoch in range(1, self.n_iter + 1):
+            shuffled_idx = np.random.permutation(n_samples) # random permutation of the indices
+            for b in range(n_batches):
+                start = b * batch_size
+                end = start + batch_size
+                idx = shuffled_idx[start:end]
+
+                x_batch = x_np[idx]
+                y_batch = y_np[idx]
+                # it returns X and Y batch values from a randomly permuted indices from start to end
+
+                y_pred = x_batch.dot(w_np)
+                # makes Y prediction value for X batch value by multiplying X and weight vectors.
+
+                error = y_batch - y_pred  # error is difference between Y batch value and Y prediction value
+                grad = -2 * x_batch.T.dot(error) / batch_size
+                # gradient is calculated by multiplication of error, transposed X batch value and -2 divided by batch size
+
+                w_np -= self.lr * grad  # weight is decreased by multiplication of learning rate and gradient
+
+            # if verbose, it calculates the mean squared error every 100 iterations and displays it
+            if self.verbose and epoch % 100 == 0:
+                y_full_pred = x.dot(w_np)
+                mse = ((y_np - y_full_pred) ** 2).mean()
+                print(f"Iter {epoch:5d} | MSE: {mse:.6f}")
+
+        self.w = pd.Series(w_np, index=x.columns) # store weights back as a pandas series
         return self
-
 
     def predict(self, x: pd.DataFrame) -> pd.Series:
         '''
-            Predict method is used to test trained data to do X prediction by multiplying X and weight vectors.
+            Predict method makes X prediction by multiplying X and weight vectors.
         '''
         if self.w is None:  # if weight is empty, throw error
             raise RuntimeError("Model is not fitted yet. Call `fit` first.")
@@ -143,7 +149,8 @@ if __name__ == "__main__":
     y_train, y_test = y.iloc[:n_train], y.iloc[n_train:]
 
     # training of the model
-    model = LinearRegression(add_bias=True)
+    model = LinearRegression(lr=0.0001, n_iter=5000, batch_size=64, add_bias=True, verbose=True)
+    # other values could be used, for example (lr=0.01, n_iter=2000, batch_size=None, add_bias=True, verbose=False)
     model.fit(x_train, y_train)
 
     # evaluation of the model
