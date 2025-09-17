@@ -43,9 +43,6 @@ if __name__ == "__main__":
     for col in num_cols:
         df = df[df[col] >= 0]
 
-    df['Diagnosis'] = df['Diagnosis'].map({'M': 1, 'B': 0})   # making diagnosis numeric
-    df['Diagnosis'] = df['Diagnosis'].astype('category')
-
     # sanity checks for data validity
     df = df[(df['radius_mean'] > 0) & (df['radius_mean'] <= 30)]
     df = df[(df['radius_worst'] > 0) & (df['radius_worst'] <= 30)]
@@ -59,4 +56,5 @@ if __name__ == "__main__":
     # check if there are still null values
     assert df.isna().sum().sum() == 0, "There are still some null values."
 
+    df['Diagnosis'] = df['Diagnosis'].map({'M': 1, 'B': 0})  # making diagnosis numeric
     df['Diagnosis'] = df['Diagnosis'].astype('category')
