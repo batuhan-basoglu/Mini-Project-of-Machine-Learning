@@ -135,6 +135,15 @@ if __name__ == "__main__":
     df.dropna(inplace=True) # remove null values
     print(f"Rows remaining after drop of the null values: {len(df)}")
 
+    # sanity checks for data validity
+    df = df[(df['age'] >= 18) & (df['age'] <= 95)]
+    df = df[(df['motor_UPDRS'] >= 0) & (df['motor_UPDRS'] <= 100)]
+    df = df[(df['total_UPDRS'] >= 0) & (df['total_UPDRS'] <= 100)]
+    df = df[(df['Jitter(%)'] >= 0) & (df['Jitter(%)'] <= 10)]
+    df = df[(df['Shimmer(dB)'] >= 0) & (df['Shimmer(dB)'] <= 10)]
+
+    print(f"Rows after sanity checks: {len(df)}")
+
     # check if there are still null values
     assert df.isna().sum().sum() == 0, "There are still some null values."
 
