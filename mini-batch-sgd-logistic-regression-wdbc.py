@@ -43,7 +43,7 @@ if __name__ == "__main__":
     for col in num_cols:
         df = df[df[col] >= 0]
 
-    # sanity checks for data validity
+    # sanity checks for data validity - max tumor sizes possible
     df = df[(df['radius_mean'] > 0) & (df['radius_mean'] <= 30)]
     df = df[(df['radius_worst'] > 0) & (df['radius_worst'] <= 30)]
     df = df[(df['texture_mean'] >= 0) & (df['texture_mean'] <= 100)]

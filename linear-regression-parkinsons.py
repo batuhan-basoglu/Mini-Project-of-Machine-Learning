@@ -129,7 +129,7 @@ if __name__ == "__main__":
     df.dropna(inplace=True) # remove null values
     print(f"Rows remaining after drop of the null values: {len(df)}")
 
-    # sanity checks for data validity
+    # sanity checks for data validity - realistic parkinson data range estimations
     df = df[(df['age'] >= 18) & (df['age'] <= 95)]
     df = df[(df['motor_UPDRS'] >= 0) & (df['motor_UPDRS'] <= 100)]
     df = df[(df['total_UPDRS'] >= 0) & (df['total_UPDRS'] <= 100)]
