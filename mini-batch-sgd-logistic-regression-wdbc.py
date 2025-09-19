@@ -7,7 +7,6 @@ class LogisticRegression:
         Constructor for the logistic regression with gradient descent. It uses learning rate, iteration number,
         tolerance and verbose. It also initializes the weight, loss, x, y, mean and std.
     '''
-
     def __init__(self, learning_rate: float, n_iter: int, batch_size: int, tolerance: float, verbose: bool) -> None:
         self.lr = learning_rate
         self.n_iter = n_iter
