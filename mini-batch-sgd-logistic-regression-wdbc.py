@@ -86,7 +86,7 @@ class LogisticRegression:
 
                 x_batch = self.x[idx]
                 y_batch = self.y[idx]
-
+                # it returns X and Y batch values from a randomly permuted indices from start to end
 
                 z = x_batch.dot(self.w)
                 p = self.sigmoid(z)
