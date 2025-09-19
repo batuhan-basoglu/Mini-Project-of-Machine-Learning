@@ -27,8 +27,8 @@ class LinearRegression:
 
 class LinearRegression:
     '''
-        Constructor for the Linear Regression with analytical. It uses bias. It also
-        initializes the weight, mean and std.
+        Constructor for the linear regression with analytical solution. It uses bias. It also
+        initializes the weight, mean and standard deviation.
     '''
     def __init__(self, add_bias):
         self.add_bias = add_bias  # bias to prepend a column of ones (the intercept term)
@@ -60,7 +60,8 @@ class LinearRegression:
     def fit(self, x: pd.DataFrame, y: pd.Series) -> "LinearRegression":
         '''
             Fit method to fit X and Y datas through pandas and train the linear model by analytical solution.
-            It uses pandas DataFrame for the X and Series for the Y.
+            It uses pandas DataFrame for the X and Series for the Y. It uses the linear regression formula
+            to calculate weight
         '''
         x = self.prepare(x)
         y = pd.Series(y).astype("float64")
@@ -84,7 +85,7 @@ class LinearRegression:
 
     def predict(self, x: pd.DataFrame) -> pd.Series:
         '''
-            Predict method is used to test trained data to do X prediction by multiplying X and weight vectors.
+            Predict method is used to test trained data to do Y prediction by multiplying X and weight vectors.
         '''
         if self.w is None:  # if weight is empty, throw error
             raise RuntimeError("Model is not fitted yet. Call `fit` first.")
@@ -95,7 +96,7 @@ class LinearRegression:
     def score(self, x: pd.DataFrame, y: pd.Series) -> float:
         '''
             This method is used to calculate coefficient of determination to assess the goodness
-            of fit from a regression model
+            of fit from the linear regression model
         '''
         y_pred = self.predict(x)  # predicts Y value with X predict method.
         y = pd.Series(y).astype('float64')
@@ -127,7 +128,7 @@ if __name__ == "__main__":
         df[col] = pd.to_numeric(df[col], errors='coerce') # convert columns to numeric values
 
     df.dropna(inplace=True) # remove null values
-    print(f"Rows remaining after drop of the null values: {len(df)}")
+    print(f"Rows remaining after drop of the null values: {len(df)}\n")
 
     # sanity checks for data validity - realistic parkinson data range estimations
     df = df[(df['age'] >= 18) & (df['age'] <= 95)]
@@ -157,12 +158,9 @@ if __name__ == "__main__":
 
     # evaluation of the model
     print("\nR² on training data:", model.score(x_train, y_train))
-    print("\nR² on testing data:", model.score(x_test, y_test))
+    print("R² on testing data:", model.score(x_test, y_test))
 
     # predict Y values using the trained data
     preds = model.predict(x_test)
-    print("\nFirst 5 predictions:")
-    print(preds.head())
-
-    print("\nWeights:")
-    print(model.w.round(4))
+    print("\nFirst 10 predictions:")
+    print(preds.head(10))
