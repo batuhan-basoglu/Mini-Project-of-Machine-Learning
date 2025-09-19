@@ -63,7 +63,7 @@ class LinearRegression:
             shuffled_idx = np.random.permutation(n_samples) # random permutation of the indices
             for b in range(n_batches):
                 start = b * batch_size
-                end = start + batch_size
+                end   = min(start + batch_size, n_samples)
                 idx = shuffled_idx[start:end]
 
                 x_batch = x_np[idx]
