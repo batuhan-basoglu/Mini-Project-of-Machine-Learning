@@ -87,8 +87,8 @@ class LogisticRegression:
                 y_batch = self.y[idx]
                 # it returns X and Y batch values from a randomly permuted indices from start to end
 
-                z = x_batch.dot(self.w)
-                p = self.sigmoid(z)
+                z = x_batch.dot(self.w) # linear prediction
+                p = self.sigmoid(z) # probabilities of the model predictions
 
                 grad = x_batch.T.dot(p - y_batch) / y_batch.size # gradient calculation formula
                 self.w -= self.lr * grad # gradient multiplied by learning rate is removed from weight
