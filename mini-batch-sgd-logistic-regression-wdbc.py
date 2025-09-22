@@ -1,7 +1,6 @@
 import numpy as np
 import pandas as pd
 
-
 class LogisticRegression:
     '''
         Constructor for the logistic regression with gradient descent. It uses learning rate, iteration number,
