@@ -30,7 +30,7 @@ class LogisticRegression:
         """Cross‑entropy loss is used for the cost calculation"""
         eps = 1e-15
         p = np.clip(p, eps, 1 - eps)
-        return -np.mean(y * np.log(p) + (1 - y) * np.log(1 - p))
+        return -np.mean(y * np.log(p) + (1 - y) * np.log(1 - p)) # mean of -[y*log(p) + (1 - y)*log(1-p)]
 
     def prepare(self, df: pd.DataFrame, target_col: str) -> None:
         """
@@ -90,7 +90,7 @@ class LogisticRegression:
                 z = x_batch.dot(self.w) # linear prediction
                 p = self.sigmoid(z) # probabilities of the model predictions
 
-                grad = x_batch.T.dot(p - y_batch) / y_batch.size # gradient calculation formula
+                grad = x_batch.T.dot(p - y_batch) / y_batch.size # for logistic regression X^T*(p - y)
                 self.w -= self.lr * grad # gradient multiplied by learning rate is removed from weight
 
             # cost is calculated through cross‑entropy and added for the current range
@@ -207,3 +207,7 @@ if __name__ == "__main__":
     first_10 = X_test[:10]
     y_hat = model.predict(first_10)
     print("\nFirst 10 predictions:", y_hat.ravel())
+
+    # weight report
+    print("\nWeights from the model:")
+    print(model.w)

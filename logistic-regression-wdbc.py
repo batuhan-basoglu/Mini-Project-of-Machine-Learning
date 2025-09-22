@@ -74,7 +74,7 @@ class LogisticRegression:
             z = self.x.dot(self.w) # linear prediction
             p = self.sigmoid(z) # probabilities of the model predictions
 
-            gradient = self.x.T.dot(p - self.y) / self.y.size # gradient calculation formula
+            gradient = self.x.T.dot(p - self.y) / self.y.size  # for logistic regression X^T*(p - y)
 
             self.w -= self.lr * gradient # gradient multiplied by learning rate is removed from weight
 
@@ -191,3 +191,7 @@ if __name__ == "__main__":
     first_10 = X_test[:10]
     y_hat = model.predict(first_10)
     print("\nFirst 10 predictions:", y_hat.ravel())
+
+    # weight report
+    print("\nWeights from the model:")
+    print(model.w)

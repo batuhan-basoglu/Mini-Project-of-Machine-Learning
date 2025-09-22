@@ -74,7 +74,7 @@ class LinearRegression:
                 # makes Y prediction value for X batch value by multiplying X and weight vectors.
 
                 error = y_batch - y_pred  # error is difference between Y batch value and Y prediction value
-                grad = -2 * x_batch.T.dot(error) / batch_size
+                grad = -2 * x_batch.T.dot(error) / batch_size  # for linear regression -2*X^T*(error)
                 # gradient is calculated by multiplication of error, transposed X batch value and -2 divided by batch size
 
                 w_np -= self.lr * grad  # weight is decreased by multiplication of learning rate and gradient
@@ -170,3 +170,7 @@ if __name__ == "__main__":
     preds = model.predict(x_test)
     print("\nFirst 10 predictions:")
     print(preds.head(10))
+
+    # weight report
+    print("\nWeights from the model:")
+    print(model.w)

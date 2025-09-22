@@ -164,3 +164,7 @@ if __name__ == "__main__":
     preds = model.predict(x_test)
     print("\nFirst 10 predictions:")
     print(preds.head(10))
+
+    # weight report
+    print("\nWeights from the model:")
+    print(model.w)
