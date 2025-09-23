@@ -125,7 +125,74 @@ if __name__ == "__main__":
     df = pd.read_csv('wdbc.data', header=None, names=columns, dtype=str)
 
     df.drop(columns=['ID'], inplace=True) # drops id column
+    '''
+    # load data set into pandas objects --> easier to clean
+    url = 'https://raw.githubusercontent.com/ShaaniBel/datasets/refs/heads/main/wdbc.data'
+    cancer = pd.read_csv(url, header=None)
 
+    # ID should be dropped --> remove 1st row
+    cancer = cancer.drop(cancer.columns[0], axis=1)
+
+    # need to encode the B/M into 0/1
+    cancer[cancer.columns[0]] = cancer[cancer.columns[0]].map({'B': 0, 'M': 1})
+
+    # no missing values in our dataset but still in case:
+    cancer = cancer[~cancer.eq('?').any(axis=1)]
+
+    # no duplicate rows but just in case:
+    cancer = cancer.drop_duplicates()
+
+    # check data types: --> everything is good
+    # print(cancer.dtypes)
+    '''
+    # check for highly correlated features and write them down
+    '''
+    corr_matrix = cancer.corr().abs()
+    upper = corr_matrix.where(np.triu(np.ones(corr_matrix.shape), k=1).astype(bool))
+
+    # find features with correlation greater than 0.95
+    high_corr_features = []
+    for col in upper.columns:
+        high_corr = upper[col][upper[col] > 0.95]
+        if not high_corr.empty:
+            high_corr_features.append((col, high_corr.index.tolist()))
+
+    if high_corr_features:
+        print("correlated features (>0.95):")
+        for feature, correlated_with in high_corr_features:
+            print(f"  {feature} AND {correlated_with}")
+    '''
+    '''
+    # ____________________________________________________________________________________
+    # HANDLE OUTLIERS AND INCONSISTENCIES
+    # https://medium.com/@heyamit10/pandas-outlier-detection-techniques-e9afece3d9e3
+    # if z-score more than 3 --> outllier
+    # print(cancer.head().to_string())
+
+    # ____________________________________________________________________________________
+
+    # separate dependent VS independent variables
+    X = cancer.drop(cancer.columns[0], axis=1)
+    y = cancer[1]
+
+    # print(X.head().to_string())
+
+    # normalize data
+    # normalize = cancer.drop(cancer.columns[0], axis=1)
+    # normalize = (normalize - normalize.mean()) / normalize.std()
+    # cancer[cancer.columns[1:]] = normalize
+    # print(cancer.head().to_string())
+
+    # turn into array for regression
+    X = X.to_numpy()
+    y = y.to_numpy()
+
+    # cancer_y = np.asarray(cancer2[0].tolist())
+    # cancer2.drop(cancer2[0], axis = 1, inplace = True)
+
+    # split data into train / tests datasets
+    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42, stratify=y)
+'''
     missing_rows = df[df.isin(['?', 'NA', 'na', '']).any(axis=1)]  # checks null values
     print(f"Rows with null values: {len(missing_rows)}")
 

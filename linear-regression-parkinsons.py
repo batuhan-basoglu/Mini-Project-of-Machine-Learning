@@ -93,6 +93,74 @@ if __name__ == "__main__":
 
     df.replace(['?','NA', 'na', ''], pd.NA, inplace=True) # replace null values with NA identifier
 
+    #___________________________
+    '''
+    # missing_parkinson = Parkinson[Parkinson.eq('?').any(axis=1)]
+    # print(len(missing_parkinson))
+    # no missing values in our dataset but still in case:
+    Parkinson = Parkinson[~Parkinson.eq('?').any(axis=1)]
+
+    # duplicates rows???
+    # duplicates = Parkinson.duplicated().sum()
+    # print(duplicates)
+    # no duplicates but just in case:
+    Parkinson = Parkinson.drop_duplicates()
+
+    # check data types --> no problem
+    # print(Parkinson.dtypes)
+
+    # check for highly correlated features --> ensure uniqueness of solution
+    # find them then note for 3rd phase
+    '''
+    """
+    #https://www.projectpro.io/recipes/drop-out-highly-correlated-features-in-python
+    #0 indicates no correlation and 1 indicates perfect correlation
+    corr_matrix = Parkinson.corr().abs()
+    upper = corr_matrix.where(np.triu(np.ones(corr_matrix.shape), k=1).astype(bool))
+
+    # find features with correlation greater than 0.95
+    high_corr_features = []
+    for col in upper.columns:
+        high_corr = upper[col][upper[col] > 0.95]
+        if not high_corr.empty:
+            high_corr_features.append((col, high_corr.index.tolist()))
+
+    if high_corr_features:
+        print("correlated features (>0.95):")
+        for feature, correlated_with in high_corr_features:
+            print(f"  {feature} AND {correlated_with}")
+    """
+    '''
+    # repeated fields —> for now I removed them since might not be too relevant (need testing to see if we keep it later)
+    Parkinson = Parkinson.drop(Parkinson.columns[0:3], axis=1)
+
+    # ____________________________________________________________________________________
+    # HANDLE OUTLIERS AND INCONSISTENCIES
+    # https://medium.com/@heyamit10/pandas-outlier-detection-techniques-e9afece3d9e3
+    # if z-score more than 3 --> outllier
+    # print(Parkinson.head().to_string())
+
+    # ____________________________________________________________________________________
+
+    # Prepare Data for regression
+    # separate dependent VS independent variables
+    feature_columns = [col for col in Parkinson.columns if col not in ['motor_UPDRS', 'total_UPDRS', 'subject#']]
+    X = Parkinson[feature_columns]
+    y = Parkinson['motor_UPDRS']
+
+    # normalize / scale features? if not already done
+    # !!!!!!!!!!only for X not y!!!!!!!!!!!
+    # normalize = Parkinson.drop(Parkinson.columns[0:6], axis=1)
+    # normalize = (normalize - normalize.mean()) / normalize.std()
+    # Parkinson[Parkinson.columns[6:]] = normalize
+
+    # turn into array for regression
+    X = X.to_numpy()
+    y = y.to_numpy()
+
+    # split data into train 80% / tests datasets 20%
+    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42, stratify=y)
+'''
     num_cols = [
         'age', 'sex', 'test_time', 'motor_UPDRS', 'total_UPDRS',
         'Jitter(%)', 'Jitter(Abs)', 'Jitter:RAP', 'Jitter:PPQ5', 'Jitter:DDP',
