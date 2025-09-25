@@ -10,7 +10,7 @@ class LinearRegression:
         self.add_bias = add_bias  # bias to prepend a column of ones (the intercept term)
         self.w = None  # weight/coefficient
         self.mean = None  # used for standardisation
-        self.std = None  # standard deviationg
+        self.std = None  # standard deviation
 
 
     def prepare(self, x: pd.DataFrame) -> pd.DataFrame:
