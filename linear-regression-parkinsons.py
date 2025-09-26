@@ -187,9 +187,9 @@ if __name__ == "__main__":
     assert df.isna().sum().sum() == 0, "There are still some null values."
 
     # split the X and Y values
-    target = 'total_UPDRS'
-    x = df.drop(columns=[target])
-    y = df[target]
+    feature_columns = [col for col in df.columns if col not in ['motor_UPDRS', 'total_UPDRS', 'subject#']]
+    x = df[feature_columns]
+    y = df['motor_UPDRS']
 
     # train / test splitting (80 / 20)
     n_train = int(0.8 * len(x))
