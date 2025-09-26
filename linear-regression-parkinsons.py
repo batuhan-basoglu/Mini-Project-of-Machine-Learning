@@ -93,29 +93,21 @@ if __name__ == "__main__":
 
     df.replace(['?','NA', 'na', ''], pd.NA, inplace=True) # replace null values with NA identifier
 
-    #___________________________
-    '''
-    # missing_parkinson = Parkinson[Parkinson.eq('?').any(axis=1)]
-    # print(len(missing_parkinson))
-    # no missing values in our dataset but still in case:
-    Parkinson = Parkinson[~Parkinson.eq('?').any(axis=1)]
+    # check data types --> no problem
+    # print(df.dtypes)
 
     # duplicates rows???
-    # duplicates = Parkinson.duplicated().sum()
-    # print(duplicates)
+    duplicates = df.duplicated().sum()
+    print(f"Num of duplicated rows:", duplicates)
     # no duplicates but just in case:
-    Parkinson = Parkinson.drop_duplicates()
-
-    # check data types --> no problem
-    # print(Parkinson.dtypes)
+    df = df.drop_duplicates()
 
     # check for highly correlated features --> ensure uniqueness of solution
     # find them then note for 3rd phase
-    '''
-    """
-    #https://www.projectpro.io/recipes/drop-out-highly-correlated-features-in-python
-    #0 indicates no correlation and 1 indicates perfect correlation
-    corr_matrix = Parkinson.corr().abs()
+
+    #Further experiments
+    # 0 indicates no correlation and 1 indicates perfect correlation
+    corr_matrix = df.corr().abs()
     upper = corr_matrix.where(np.triu(np.ones(corr_matrix.shape), k=1).astype(bool))
 
     # find features with correlation greater than 0.95
@@ -129,7 +121,12 @@ if __name__ == "__main__":
         print("correlated features (>0.95):")
         for feature, correlated_with in high_corr_features:
             print(f"  {feature} AND {correlated_with}")
-    """
+
+    # check for weak correlation with target
+    target_corr = df.corr()['motor_UPDRS'].abs().sort_values(ascending=False)
+    print("Correlation with target variable descending order:")
+    print(target_corr)
+
     '''
     # repeated fields —> for now I removed them since might not be too relevant (need testing to see if we keep it later)
     Parkinson = Parkinson.drop(Parkinson.columns[0:3], axis=1)
@@ -141,12 +138,6 @@ if __name__ == "__main__":
     # print(Parkinson.head().to_string())
 
     # ____________________________________________________________________________________
-
-    # Prepare Data for regression
-    # separate dependent VS independent variables
-    feature_columns = [col for col in Parkinson.columns if col not in ['motor_UPDRS', 'total_UPDRS', 'subject#']]
-    X = Parkinson[feature_columns]
-    y = Parkinson['motor_UPDRS']
 
     # normalize / scale features? if not already done
     # !!!!!!!!!!only for X not y!!!!!!!!!!!
@@ -161,14 +152,7 @@ if __name__ == "__main__":
     # split data into train 80% / tests datasets 20%
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42, stratify=y)
 '''
-    num_cols = [
-        'age', 'sex', 'test_time', 'motor_UPDRS', 'total_UPDRS',
-        'Jitter(%)', 'Jitter(Abs)', 'Jitter:RAP', 'Jitter:PPQ5', 'Jitter:DDP',
-        'Shimmer', 'Shimmer(dB)', 'Shimmer:APQ3', 'Shimmer:APQ5',
-        'Shimmer:APQ11', 'Shimmer:DDA', 'NHR', 'HNR', 'RPDE', 'DFA', 'PPE'
-    ]
-
-    for col in num_cols:
+    for col in df:
         df[col] = pd.to_numeric(df[col], errors='coerce') # convert columns to numeric values
 
     df.dropna(inplace=True) # remove null values
@@ -190,6 +174,7 @@ if __name__ == "__main__":
     feature_columns = [col for col in df.columns if col not in ['motor_UPDRS', 'total_UPDRS', 'subject#']]
     x = df[feature_columns]
     y = df['motor_UPDRS']
+
 
     # train / test splitting (80 / 20)
     n_train = int(0.8 * len(x))

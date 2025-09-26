@@ -124,44 +124,14 @@ if __name__ == "__main__":
 
     df = pd.read_csv('wdbc.data', header=None, names=columns, dtype=str)
 
-    df.drop(columns=['ID'], inplace=True) # drops id column
-    '''
-    # load data set into pandas objects --> easier to clean
-    url = 'https://raw.githubusercontent.com/ShaaniBel/datasets/refs/heads/main/wdbc.data'
-    cancer = pd.read_csv(url, header=None)
-
     # ID should be dropped --> remove 1st row
-    cancer = cancer.drop(cancer.columns[0], axis=1)
-
-    # need to encode the B/M into 0/1
-    cancer[cancer.columns[0]] = cancer[cancer.columns[0]].map({'B': 0, 'M': 1})
-
-    # no missing values in our dataset but still in case:
-    cancer = cancer[~cancer.eq('?').any(axis=1)]
+    df.drop(columns=['ID'], inplace=True) # drops id column
 
     # no duplicate rows but just in case:
-    cancer = cancer.drop_duplicates()
-
+    df = df.drop_duplicates()
     # check data types: --> everything is good
-    # print(cancer.dtypes)
-    '''
-    # check for highly correlated features and write them down
-    '''
-    corr_matrix = cancer.corr().abs()
-    upper = corr_matrix.where(np.triu(np.ones(corr_matrix.shape), k=1).astype(bool))
+    # print(df.dtypes)
 
-    # find features with correlation greater than 0.95
-    high_corr_features = []
-    for col in upper.columns:
-        high_corr = upper[col][upper[col] > 0.95]
-        if not high_corr.empty:
-            high_corr_features.append((col, high_corr.index.tolist()))
-
-    if high_corr_features:
-        print("correlated features (>0.95):")
-        for feature, correlated_with in high_corr_features:
-            print(f"  {feature} AND {correlated_with}")
-    '''
     '''
     # ____________________________________________________________________________________
     # HANDLE OUTLIERS AND INCONSISTENCIES
@@ -222,6 +192,27 @@ if __name__ == "__main__":
 
     # making diagnosis numeric
     df["Diagnosis"] = df["Diagnosis"].map({"M": 1, "B": 0}).astype("category")
+
+    #check for correlation radius, are and perimeter have trivially a high correlation
+    corr_matrix = df.corr().abs()
+    upper = corr_matrix.where(np.triu(np.ones(corr_matrix.shape), k=1).astype(bool))
+
+    # find features with correlation greater than 0.90
+    high_corr_features = []
+    for col in upper.columns:
+        high_corr = upper[col][upper[col] > 0.90]
+        if not high_corr.empty:
+            high_corr_features.append((col, high_corr.index.tolist()))
+
+    if high_corr_features:
+        print("correlated features (>0.95):")
+        for feature, correlated_with in high_corr_features:
+            print(f"  {feature} AND {correlated_with}")
+
+        # check for weak correlation with target --> worsts have the most impact
+        target_corr = df.corr()['Diagnosis'].abs().sort_values(ascending=False)
+        print("Correlation with target variable descending order:")
+        print(target_corr)
 
     rng = np.random.default_rng(seed=42)
     n_train = len(df)
