@@ -158,7 +158,7 @@ if __name__ == "__main__":
     # ____________________________________________________________________________________
 
     # separate dependent VS independent variables
-    X = cancer.drop(cancer.columns[0], axis=1)
+    x = cancer.drop(cancer.columns[0], axis=1)
     y = cancer[1]
 
     # print(X.head().to_string())
@@ -170,14 +170,14 @@ if __name__ == "__main__":
     # print(cancer.head().to_string())
 
     # turn into array for regression
-    X = X.to_numpy()
+    x = x.to_numpy()
     y = y.to_numpy()
 
     # cancer_y = np.asarray(cancer2[0].tolist())
     # cancer2.drop(cancer2[0], axis = 1, inplace = True)
 
     # split data into train / tests datasets
-    X_train, x_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42, stratify=y)
+    x_train, x_test, y_train, y_test = train_test_split(x, y, test_size=0.2, random_state=42, stratify=y)
 '''
     missing_rows = df[df.isin(['?', 'NA', 'na', '']).any(axis=1)]  # checks null values
     print(f"Rows with null values: {len(missing_rows)}")
