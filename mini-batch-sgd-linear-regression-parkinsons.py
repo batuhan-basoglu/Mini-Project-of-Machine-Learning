@@ -122,18 +122,70 @@ if __name__ == "__main__":
 
     df.replace(['?','NA', 'na', ''], pd.NA, inplace=True) # replace null values with NA identifier
 
-    num_cols = [
-        'age', 'sex', 'test_time', 'motor_UPDRS', 'total_UPDRS',
-        'Jitter(%)', 'Jitter(Abs)', 'Jitter:RAP', 'Jitter:PPQ5', 'Jitter:DDP',
-        'Shimmer', 'Shimmer(dB)', 'Shimmer:APQ3', 'Shimmer:APQ5',
-        'Shimmer:APQ11', 'Shimmer:DDA', 'NHR', 'HNR', 'RPDE', 'DFA', 'PPE'
-    ]
+    # check data types --> no problem
+    # print(df.dtypes)
 
-    for col in num_cols:
+    # duplicates rows???
+    duplicates = df.duplicated().sum()
+    print(f"Num of duplicated rows:", duplicates)
+    # no duplicates but just in case:
+    df = df.drop_duplicates()
+
+    # check for highly correlated features --> ensure uniqueness of solution
+    # find them then note for 3rd phase
+
+    #Further experiments
+    # 0 indicates no correlation and 1 indicates perfect correlation
+    corr_matrix = df.corr().abs()
+    upper = corr_matrix.where(np.triu(np.ones(corr_matrix.shape), k=1).astype(bool))
+
+    # find features with correlation greater than 0.95
+    high_corr_features = []
+    for col in upper.columns:
+        high_corr = upper[col][upper[col] > 0.95]
+        if not high_corr.empty:
+            high_corr_features.append((col, high_corr.index.tolist()))
+
+    if high_corr_features:
+        print("\ncorrelated features (>0.95):")
+        for feature, correlated_with in high_corr_features:
+            print(f"  {feature} AND {correlated_with}")
+
+    # check for weak correlation with target
+    target_corr = df.corr()['motor_UPDRS'].abs().sort_values(ascending=False)
+    print("\nCorrelation with target variable descending order:")
+    print(target_corr)
+
+    '''
+    # repeated fields —> for now I removed them since might not be too relevant (need testing to see if we keep it later)
+    Parkinson = Parkinson.drop(Parkinson.columns[0:3], axis=1)
+
+    # ____________________________________________________________________________________
+    # HANDLE OUTLIERS AND INCONSISTENCIES
+    # https://medium.com/@heyamit10/pandas-outlier-detection-techniques-e9afece3d9e3
+    # if z-score more than 3 --> outllier
+    # print(Parkinson.head().to_string())
+
+    # ____________________________________________________________________________________
+
+    # normalize / scale features? if not already done
+    # !!!!!!!!!!only for X not y!!!!!!!!!!!
+    # normalize = Parkinson.drop(Parkinson.columns[0:6], axis=1)
+    # normalize = (normalize - normalize.mean()) / normalize.std()
+    # Parkinson[Parkinson.columns[6:]] = normalize
+
+    # turn into array for regression
+    x = x.to_numpy()
+    y = y.to_numpy()
+
+    # split data into train 80% / tests datasets 20%
+    x_train, x_test, y_train, y_test = train_test_split(x, y, test_size=0.2, random_state=42, stratify=y)
+'''
+    for col in df:
         df[col] = pd.to_numeric(df[col], errors='coerce') # convert columns to numeric values
 
     df.dropna(inplace=True) # remove null values
-    print(f"Rows remaining after drop of the null values: {len(df)}\n")
+    print(f"\nRows remaining after drop of the null values: {len(df)}\n")
 
     # sanity checks for data validity - realistic parkinson data range estimations
     df = df[(df['age'] >= 18) & (df['age'] <= 95)]
@@ -148,9 +200,10 @@ if __name__ == "__main__":
     assert df.isna().sum().sum() == 0, "There are still some null values."
 
     # split the X and Y values
-    target = 'total_UPDRS'
-    x = df.drop(columns=[target])
-    y = df[target]
+    feature_columns = [col for col in df.columns if col not in ['motor_UPDRS', 'total_UPDRS', 'subject#']]
+    x = df[feature_columns]
+    y = df['motor_UPDRS']
+
 
     # train / test splitting (80 / 20)
     n_train = int(0.8 * len(x))

@@ -118,13 +118,13 @@ if __name__ == "__main__":
             high_corr_features.append((col, high_corr.index.tolist()))
 
     if high_corr_features:
-        print("correlated features (>0.95):")
+        print("\ncorrelated features (>0.95):")
         for feature, correlated_with in high_corr_features:
             print(f"  {feature} AND {correlated_with}")
 
     # check for weak correlation with target
     target_corr = df.corr()['motor_UPDRS'].abs().sort_values(ascending=False)
-    print("Correlation with target variable descending order:")
+    print("\nCorrelation with target variable descending order:")
     print(target_corr)
 
     '''
@@ -146,17 +146,17 @@ if __name__ == "__main__":
     # Parkinson[Parkinson.columns[6:]] = normalize
 
     # turn into array for regression
-    X = X.to_numpy()
+    x = x.to_numpy()
     y = y.to_numpy()
 
     # split data into train 80% / tests datasets 20%
-    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42, stratify=y)
+    x_train, x_test, y_train, y_test = train_test_split(x, y, test_size=0.2, random_state=42, stratify=y)
 '''
     for col in df:
         df[col] = pd.to_numeric(df[col], errors='coerce') # convert columns to numeric values
 
     df.dropna(inplace=True) # remove null values
-    print(f"Rows remaining after drop of the null values: {len(df)}\n")
+    print(f"\nRows remaining after drop of the null values: {len(df)}\n")
 
     # sanity checks for data validity - realistic parkinson data range estimations
     df = df[(df['age'] >= 18) & (df['age'] <= 95)]
