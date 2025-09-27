@@ -161,7 +161,7 @@ if __name__ == "__main__":
     # cancer2.drop(cancer2[0], axis = 1, inplace = True)
 
     # split data into train / tests datasets
-    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42, stratify=y)
+    X_train, x_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42, stratify=y)
 '''
     missing_rows = df[df.isin(['?', 'NA', 'na', '']).any(axis=1)]  # checks null values
     print(f"Rows with null values: {len(missing_rows)}")
@@ -240,13 +240,13 @@ if __name__ == "__main__":
     x_test_raw = df_test.drop(columns=['Diagnosis']).values.astype(np.float64)
     x_test_scaled = (x_test_raw - model.mean) / model.std
     bias_test = np.ones((x_test_scaled.shape[0], 1), dtype=np.float64)
-    X_test = np.hstack((bias_test, x_test_scaled))
+    x_test = np.hstack((bias_test, x_test_scaled))
     y_test = df_test['Diagnosis'].values.astype(int)
-    test_acc = model.score(X_test, y_test)
+    test_acc = model.score(x_test, y_test)
     print(f"Mean accuracy on testing data: {test_acc:.4f}")
 
     # predict Y values using the trained data
-    first_10 = X_test[:10]
+    first_10 = x_test[:10]
     y_hat = model.predict(first_10)
     print("\nFirst 10 predictions:", y_hat.ravel())
 
