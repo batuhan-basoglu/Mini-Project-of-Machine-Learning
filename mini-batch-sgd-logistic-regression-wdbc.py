@@ -140,8 +140,45 @@ if __name__ == "__main__":
 
     df = pd.read_csv('wdbc.data', header=None, names=columns, dtype=str)
 
+    # ID should be dropped --> remove 1st row
     df.drop(columns=['ID'], inplace=True) # drops id column
 
+    # no duplicate rows but just in case:
+    df = df.drop_duplicates()
+    # check data types: --> everything is good
+    # print(df.dtypes)
+
+    '''
+    # ____________________________________________________________________________________
+    # HANDLE OUTLIERS AND INCONSISTENCIES
+    # https://medium.com/@heyamit10/pandas-outlier-detection-techniques-e9afece3d9e3
+    # if z-score more than 3 --> outllier
+    # print(cancer.head().to_string())
+
+    # ____________________________________________________________________________________
+
+    # separate dependent VS independent variables
+    X = cancer.drop(cancer.columns[0], axis=1)
+    y = cancer[1]
+
+    # print(X.head().to_string())
+
+    # normalize data
+    # normalize = cancer.drop(cancer.columns[0], axis=1)
+    # normalize = (normalize - normalize.mean()) / normalize.std()
+    # cancer[cancer.columns[1:]] = normalize
+    # print(cancer.head().to_string())
+
+    # turn into array for regression
+    X = X.to_numpy()
+    y = y.to_numpy()
+
+    # cancer_y = np.asarray(cancer2[0].tolist())
+    # cancer2.drop(cancer2[0], axis = 1, inplace = True)
+
+    # split data into train / tests datasets
+    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42, stratify=y)
+'''
     missing_rows = df[df.isin(['?', 'NA', 'na', '']).any(axis=1)]  # checks null values
     print(f"Rows with null values: {len(missing_rows)}")
 
@@ -172,10 +209,32 @@ if __name__ == "__main__":
     # making diagnosis numeric
     df["Diagnosis"] = df["Diagnosis"].map({"M": 1, "B": 0}).astype("category")
 
+    #check for correlation radius, are and perimeter have trivially a high correlation
+    corr_matrix = df.corr().abs()
+    upper = corr_matrix.where(np.triu(np.ones(corr_matrix.shape), k=1).astype(bool))
+
+    # find features with correlation greater than 0.90
+    high_corr_features = []
+    for col in upper.columns:
+        high_corr = upper[col][upper[col] > 0.90]
+        if not high_corr.empty:
+            high_corr_features.append((col, high_corr.index.tolist()))
+
+    if high_corr_features:
+        print("correlated features (>0.95):")
+        for feature, correlated_with in high_corr_features:
+            print(f"  {feature} AND {correlated_with}")
+
+        # check for weak correlation with target --> worsts have the most impact
+        target_corr = df.corr()['Diagnosis'].abs().sort_values(ascending=False)
+        print("\nCorrelation with target variable descending order:")
+        print(target_corr)
+    print("") # \n splitter
+
     rng = np.random.default_rng(seed=42)
-    n_samples = len(df)
-    indices = rng.permutation(n_samples)
-    train_size = int(0.8 * n_samples)
+    n_train = len(df)
+    indices = rng.permutation(n_train)
+    train_size = int(0.8 * n_train)
 
     train_idx = indices[:train_size]
     test_idx = indices[train_size:]

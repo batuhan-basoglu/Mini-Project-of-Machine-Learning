@@ -211,8 +211,9 @@ if __name__ == "__main__":
 
         # check for weak correlation with target --> worsts have the most impact
         target_corr = df.corr()['Diagnosis'].abs().sort_values(ascending=False)
-        print("Correlation with target variable descending order:")
+        print("\nCorrelation with target variable descending order:")
         print(target_corr)
+    print("") # \n splitter
 
     rng = np.random.default_rng(seed=42)
     n_train = len(df)
