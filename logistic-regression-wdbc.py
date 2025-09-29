@@ -10,17 +10,19 @@ class LogisticRegression:
         tolerance and verbose. It also initializes the weight, loss, x, y, mean and std.
     '''
 
-    def __init__(self, learning_rate: float, n_iter: int, tolerance: float, verbose: bool) -> None:
+    def __init__(self, learning_rate: float, n_iter: int, tolerance: float, verbose: bool) -> None: # add momentum as value for the gradient descent
         self.lr = learning_rate
         self.n_iter = n_iter
         self.tol = tolerance
         self.verbose = verbose
+        #self.momentum = momentum  # momentum parameter
         self.w: np.ndarray | None = None         # weight/coefficient (bias as first element)
         self.loss: list[float] = []              # loss per iteration
         self.x: np.ndarray | None = None         # matrix of inputs after standardisation
         self.y: np.ndarray | None = None         # target vector
         self.mean: np.ndarray | None = None      # used for standardisation
         self.std: np.ndarray | None = None       # standard deviation
+        #self.v: np.ndarray | None = None         # velocity term for momentum
 
     @staticmethod
     def sigmoid(z: np.ndarray) -> np.ndarray:
@@ -70,12 +72,16 @@ class LogisticRegression:
         if self.x is None or self.y is None: # if x or y are empty, throw error
             raise RuntimeError("Model is not fitted yet. Call `fit` first.")
 
+        #self.v = np.zeros_like(self.w) # initiating the velocity
+
         for i in range(1, self.n_iter + 1):
             z = self.x.dot(self.w) # linear prediction
             p = self.sigmoid(z) # probabilities of the model predictions
 
             gradient = self.x.T.dot(p - self.y) / self.y.size  # for logistic regression X^T*(p - y)
 
+            #self.v = self.momentum * self.v + gradient # incorporating momentum
+            #self.w -= self.lr * self.v
             self.w -= self.lr * gradient # gradient multiplied by learning rate is removed from weight
 
             loss = self.cost(self.y, p) # cost is calculated through cross‑entropy and added for the current range
@@ -338,6 +344,8 @@ if __name__ == "__main__":
     # training of the model
     model = LogisticRegression(learning_rate=0.00005, n_iter=5000, tolerance=1e-6, verbose=True)
     # other values could be used, for example (lr=0.01, n_iter=2000, tolerance=1e-3, verbose=False)
+    #model = LogisticRegression(learning_rate=0.00005, n_iter=5000, tolerance=1e-6, verbose=True, momentum= 0.9)
+    # using momentum for gradient descent calculation
     model.prepare(df_train, target_col="Diagnosis")
     model.fit()
 

@@ -6,8 +6,9 @@ class LinearRegression:
         Constructor for the linear regression with analytical solution. It uses bias. It also
         initializes the weight, mean and standard deviation.
     '''
-    def __init__(self, add_bias):
+    def __init__(self, add_bias): # add degree as value for the polynomial features
         self.add_bias = add_bias  # bias to prepend a column of ones (the intercept term)
+        #self.degree = degree  # degree for polynomial expansion (non-linear base)
         self.w = None  # weight/coefficient
         self.mean = None  # used for standardisation
         self.std = None  # standard deviation
@@ -30,8 +31,18 @@ class LinearRegression:
         if self.add_bias:  # adding bias
             x['bias'] = 1.0
 
-        return x
+        '''
+        # applying polynomial transformation for non-linear bases
+        if self.degree > 1:
+            poly_features = pd.DataFrame()
+            # create polynomial features of the given degree
+            for col in x.columns:
+                for d in range(2, self.degree + 1):
+                    poly_features[f"{col}^{d}"] = x[col] ** d
+            x = pd.concat([x, poly_features], axis=1)\
+        '''
 
+        return x
 
     def fit(self, x: pd.DataFrame, y: pd.Series) -> "LinearRegression":
         '''
@@ -218,6 +229,7 @@ if __name__ == "__main__":
 
     # training of the model
     model = LinearRegression(add_bias=True)
+    #model = LinearRegression(add_bias=True, degree=2) # using polynomial degree for non-linear base calculation.
     model.fit(x_train, y_train)
 
     # evaluation of the model

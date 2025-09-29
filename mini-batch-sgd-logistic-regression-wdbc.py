@@ -6,18 +6,20 @@ class LogisticRegression:
         Constructor for the logistic regression with gradient descent. It uses learning rate, iteration number,
         tolerance and verbose. It also initializes the weight, loss, x, y, mean and std.
     '''
-    def __init__(self, learning_rate: float, n_iter: int, batch_size: int, tolerance: float, verbose: bool) -> None:
+    def __init__(self, learning_rate: float, n_iter: int, batch_size: int, tolerance: float, verbose: bool) -> None: # add momentum as value for the gradient descent
         self.lr = learning_rate
         self.n_iter = n_iter
         self.batch_size = batch_size
         self.tol = tolerance
         self.verbose = verbose
+        #self.momentum = momentum  # momentum parameter
         self.w: np.ndarray | None = None         # weight/coefficient (bias as first element)
         self.loss: list[float] = []              # loss per iteration
         self.x: np.ndarray | None = None         # matrix of inputs after standardisation
         self.y: np.ndarray | None = None         # target vector
         self.mean: np.ndarray | None = None      # used for standardisation
         self.std: np.ndarray | None = None       # standard deviation
+        #self.v: np.ndarray | None = None         # velocity term for momentum
 
     @staticmethod
     def sigmoid(z: np.ndarray) -> np.ndarray:
@@ -75,6 +77,8 @@ class LogisticRegression:
         # number of batches per iteration
         n_batches = int(np.ceil(n_samples / batch_size))
 
+        #self.v = np.zeros_like(self.w)  # initiating the velocity
+
         for epoch in range(1, self.n_iter + 1):
             shuffled_idx = np.random.permutation(n_samples) # random permutation of the indices
             for b in range(n_batches):
@@ -90,6 +94,9 @@ class LogisticRegression:
                 p = self.sigmoid(z) # probabilities of the model predictions
 
                 grad = x_batch.T.dot(p - y_batch) / y_batch.size # for logistic regression X^T*(p - y)
+
+                #self.v = self.momentum * self.v + grad  # incorporating momentum
+                #self.w -= self.lr * self.v
                 self.w -= self.lr * grad # gradient multiplied by learning rate is removed from weight
 
             # cost is calculated through cross‑entropy and added for the current range
@@ -245,6 +252,8 @@ if __name__ == "__main__":
     # training of the model
     model = LogisticRegression(learning_rate=0.00005, n_iter=5000, batch_size=64, tolerance=1e-6, verbose=True)
     # other values could be used, for example (lr=0.01, n_iter=2000, tolerance=1e-3, verbose=False)
+    #model = LogisticRegression(learning_rate=0.00005, n_iter=5000, batch_size=64, tolerance=1e-6, verbose=True, momentum= 0.9)
+    # using momentum for gradient descent calculation
     model.prepare(df_train, target_col="Diagnosis")
     model.fit()
 

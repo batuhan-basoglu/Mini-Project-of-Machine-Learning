@@ -6,12 +6,13 @@ class LinearRegression:
         Constructor for the linear regression with mini‑batch stochastic gradient descent. It uses learning rate,
         iteration number, batch size, bias and verbose. It also initializes the weight, mean and standard deviation.
     '''
-    def __init__(self, lr, n_iter, batch_size, add_bias, verbose):
+    def __init__(self, lr, n_iter, batch_size, add_bias, verbose): # add degree as value for the polynomial features
         self.lr = lr  # learning rate
         self.n_iter = n_iter  # number of gradient-descent iterations
         self.batch_size = batch_size  # row number for each gradient step
         self.add_bias = add_bias  # bias to prepend a column of ones (the intercept term)
         self.verbose = verbose  # if true, prints the mean‑squared error every 100 iterations
+        #self.degree = degree  # degree for polynomial expansion (non-linear base)
         self.w = None  # weight/coefficient
         self.mean = None  # used for standardisation
         self.std = None  # standard deviation
@@ -32,6 +33,17 @@ class LinearRegression:
 
         if self.add_bias:  # adding bias
             x['bias'] = 1.0
+
+        '''
+        # applying polynomial transformation for non-linear bases
+        if self.degree > 1:
+            poly_features = pd.DataFrame()
+            # create polynomial features of the given degree
+            for col in x.columns:
+                for d in range(2, self.degree + 1):
+                    poly_features[f"{col}^{d}"] = x[col] ** d
+            x = pd.concat([x, poly_features], axis=1)
+        '''
 
         return x
 
@@ -213,6 +225,8 @@ if __name__ == "__main__":
     # training of the model
     model = LinearRegression(lr=0.0001, n_iter=5000, batch_size=64, add_bias=True, verbose=True)
     # other values could be used, for example (lr=0.01, n_iter=2000, batch_size=None, add_bias=True, verbose=False)
+    #model = LinearRegression(lr=0.0001, n_iter=5000, batch_size=64, add_bias=True, verbose=True, degree=2)
+    # using polynomial degree for non-linear base calculation.
     model.fit(x_train, y_train)
 
     # evaluation of the model
