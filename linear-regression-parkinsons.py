@@ -101,13 +101,21 @@ class LinearRegression:
     def rmse(self, x: pd.DataFrame, y: pd.Series) -> float:
         '''
             Root Mean Squared Error
-            Square root of MSE, in same units as the target variable
-            More interpretable than MSE while still penalizing larger errors
-            Lower values indicate better performance
         '''
         y_hat = self.predict(x)
         y_true = pd.Series(y).astype('float64')
         return (((y_true - y_hat) ** 2).mean()) ** 0.5
+
+    def regression_report(self, x: pd.DataFrame, y: pd.Series) -> dict:
+        """
+        Comprehensive classification report
+        """
+        return {
+            'R^2': self.score(x, y),
+            'MAE': self.mae(x, y),
+            'MSE': self.mse(x, y),
+            'RMSE': self.rmse(x, y)
+        }
 
 
 if __name__ == "__main__":

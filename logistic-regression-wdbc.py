@@ -91,7 +91,7 @@ class LogisticRegression:
                     print(f"Converged after {i} iterations.")
                 break # loss is stopped so further training would be unnecessary
 
-    def predict(self, x: np.ndarray | pd.DataFrame) -> np.ndarray:
+    def predict(self, x: pd.DataFrame) -> np.ndarray:
         """
             Predict method is used to test trained data to do Y prediction by multiplying X and weight vectors
             and then calculates the model probability by applying sigmoid function.
@@ -104,7 +104,7 @@ class LogisticRegression:
         probs = self.sigmoid(z) # probability calculation through sigmoid method
         return (probs >= 0.5).astype(int) # 0.5 is commonly used to define positivity of the probability
 
-    def score(self, x: np.ndarray | pd.DataFrame, y: np.ndarray | pd.Series) -> float:
+    def score(self, x: pd.DataFrame, y: pd.Series) -> float:
         """
             This method is used to calculate mean accuracy with the prediction of Y and actual Y values.
         """
@@ -112,7 +112,7 @@ class LogisticRegression:
         y_true = np.asarray(y).astype(int)
         return np.mean(y_pred == y_true) # mean is calculated if Y values match
 
-    def confusion_matrix(self, x: np.ndarray | pd.DataFrame, y: np.ndarray | pd.Series,
+    def confusion_matrix(self, x: pd.DataFrame, y: pd.Series,
                          normalize: bool = False) -> np.ndarray:
         """
         Confusion Matrix
@@ -128,7 +128,7 @@ class LogisticRegression:
 
         return cm
 
-    def plot_confusion_matrix(self, x: np.ndarray | pd.DataFrame, y: np.ndarray | pd.Series,
+    def plot_confusion_matrix(self, x: pd.DataFrame, y: pd.Series,
                               normalize: bool = False, title: str = "Confusion Matrix", sns=None) -> None:
         """
         Plot confusion matrix as a heatmap
@@ -145,7 +145,7 @@ class LogisticRegression:
         plt.xlabel('Predicted Label')
         plt.show()
 
-    def precision(self, x: np.ndarray | pd.DataFrame, y: np.ndarray | pd.Series) -> float:
+    def precision(self, x: pd.DataFrame, y: pd.Series) -> float:
         """
         Precision = TP / (TP + FP)
         Measures how many of the predicted positives are actually positive
@@ -158,7 +158,7 @@ class LogisticRegression:
 
         return tp / (tp + fp)
 
-    def recall(self, x: np.ndarray | pd.DataFrame, y: np.ndarray | pd.Series) -> float:
+    def recall(self, x: pd.DataFrame, y: pd.Series) -> float:
         """
         Recall = TP / (TP + FN)
         ratio of true positives to all the positives in ground truth
