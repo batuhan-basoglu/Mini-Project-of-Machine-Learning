@@ -72,7 +72,7 @@ class LinearRegression:
     def score(self, x: pd.DataFrame, y: pd.Series) -> float:
         '''
             This method is used to calculate coefficient of determination to assess the goodness
-            of fit from the linear regression model
+            of fit from the linear regression model (R^2)
         '''
         y_pred = self.predict(x)  # predicts Y value with X predict method.
         y = pd.Series(y).astype('float64')
@@ -81,6 +81,33 @@ class LinearRegression:
         ss_tot = ((y - y.mean()) ** 2).sum()
         # total sum of squares, uses the difference between Y values and Y mean value
         return 1.0 - ss_res / ss_tot
+
+    def mae(self, x: pd.DataFrame, y: pd.Series) -> float:
+        """
+        Mean Absolute Error
+        """
+        y_hat = self.predict(x)
+        y_true = np.asarray(y, dtype=np.float64)
+        return float(np.mean(np.abs(y_true - y_hat)))
+
+    def mse(self, x: pd.DataFrame, y: pd.Series) -> float:
+        '''
+            Mean Squared Error
+        '''
+        y_hat = self.predict(x)
+        y_true = pd.Series(y).astype('float64')
+        return ((y_true - y_hat) ** 2).mean()
+
+    def rmse(self, x: pd.DataFrame, y: pd.Series) -> float:
+        '''
+            Root Mean Squared Error
+            Square root of MSE, in same units as the target variable
+            More interpretable than MSE while still penalizing larger errors
+            Lower values indicate better performance
+        '''
+        y_hat = self.predict(x)
+        y_true = pd.Series(y).astype('float64')
+        return (((y_true - y_hat) ** 2).mean()) ** 0.5
 
 
 if __name__ == "__main__":

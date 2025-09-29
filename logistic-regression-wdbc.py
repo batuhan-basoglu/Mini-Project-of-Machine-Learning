@@ -1,5 +1,8 @@
 import numpy as np
 import pandas as pd
+from matplotlib import pyplot as plt
+from sklearn.metrics import confusion_matrix, roc_auc_score
+
 
 class LogisticRegression:
     '''
@@ -33,10 +36,8 @@ class LogisticRegression:
 
     def prepare(self, df: pd.DataFrame, target_col: str) -> None:
         """
-
         Preparation method splits df into x and y. It does define X and Y values from the dataframe and target column.
         Then it does standardisation, adds bias and initializes the weight/coefficient.
-
         """
         if target_col not in df.columns:
             raise ValueError(f"Target column '{target_col}' not found in DataFrame.")
@@ -111,6 +112,115 @@ class LogisticRegression:
         y_true = np.asarray(y).astype(int)
         return np.mean(y_pred == y_true) # mean is calculated if Y values match
 
+    def confusion_matrix(self, x: np.ndarray | pd.DataFrame, y: np.ndarray | pd.Series,
+                         normalize: bool = False) -> np.ndarray:
+        """
+        Confusion Matrix
+        Returns a 2x2 matrix: [[TN, FP], [FN, TP]]
+        """
+        y_pred = self.predict(x)
+        y_true = np.asarray(y).astype(int)
+
+        cm = confusion_matrix(y_true, y_pred)
+
+        if normalize:
+            cm = cm.astype('float') / cm.sum(axis=1)[:, np.newaxis]
+
+        return cm
+
+    def plot_confusion_matrix(self, x: np.ndarray | pd.DataFrame, y: np.ndarray | pd.Series,
+                              normalize: bool = False, title: str = "Confusion Matrix", sns=None) -> None:
+        """
+        Plot confusion matrix as a heatmap
+        """
+        cm = self.confusion_matrix(x, y, normalize)
+
+        plt.figure(figsize=(8, 6))
+        sns.heatmap(cm, annot=True, fmt='.2f' if normalize else 'd',
+                    cmap='Blues', cbar=False,
+                    xticklabels=['Predicted 0', 'Predicted 1'],
+                    yticklabels=['Actual 0', 'Actual 1'])
+        plt.title(title)
+        plt.ylabel('True Label')
+        plt.xlabel('Predicted Label')
+        plt.show()
+
+    def precision(self, x: np.ndarray | pd.DataFrame, y: np.ndarray | pd.Series) -> float:
+        """
+        Precision = TP / (TP + FP)
+        Measures how many of the predicted positives are actually positive
+        """
+        cm = self.confusion_matrix(x, y)
+        tp, fp = cm[1, 1], cm[0, 1]
+
+        if tp + fp == 0: #div by 0!!!
+            return 0.0
+
+        return tp / (tp + fp)
+
+    def recall(self, x: np.ndarray | pd.DataFrame, y: np.ndarray | pd.Series) -> float:
+        """
+        Recall = TP / (TP + FN)
+        ratio of true positives to all the positives in ground truth
+        """
+        cm = self.confusion_matrix(x, y)
+        tp, fn = cm[1, 1], cm[1, 0]
+
+        if tp + fn == 0:
+            return 0.0  # Avoid division by zero
+
+        return tp / (tp + fn)
+
+    def f1_score(self, x: np.ndarray | pd.DataFrame, y: np.ndarray | pd.Series) -> float:
+        """
+        F1-Score = 2 * ((Precision * Recall) / (Precision + Recall))
+        """
+        prec = self.precision(x, y)
+        rec = self.recall(x, y)
+
+        if prec + rec == 0:
+            return 0.0  # Avoid division by zero
+
+        return 2 * ((prec * rec) / (prec + rec))
+
+    '''
+    def predict_proba(self, x: np.ndarray | pd.DataFrame) -> np.ndarray:
+        """
+        Predict probability scores instead of binary labels
+        """
+        if isinstance(x, pd.DataFrame):
+            x = x.values
+
+        if self.w is None:
+            raise ValueError("Model not fitted yet")
+
+        # Add bias term if needed
+        if x.shape[1] == len(self.w) - 1:
+            x = np.column_stack([np.ones(x.shape[0]), x])
+
+        return self.sigmoid(x @ self.w)
+    def au_roc(self, x: np.ndarray | pd.DataFrame, y: np.ndarray | pd.Series) -> float:
+        """
+        Measures the model's ability to distinguish between classes
+        """
+        # make sure self.sigmoid outputs floats between 0 and 1
+        y_true = np.asarray(y).astype(int)
+        y_proba = self.predict_proba(x)
+
+        return roc_auc_score(y_true, y_proba)
+'''
+    def classification_report(self, x: np.ndarray | pd.DataFrame, y: np.ndarray | pd.Series) -> dict:
+        """
+        Comprehensive classification report
+        """
+        return {
+            'accuracy': self.score(x, y),
+            'precision': self.precision(x, y),
+            'recall': self.recall(x, y),
+            'f1_score': self.f1_score(x, y),
+            #'au_roc': self.au_roc(x, y)
+        }
+
 if __name__ == "__main__":
     columns = [
         'ID', 'Diagnosis',
@@ -131,7 +241,6 @@ if __name__ == "__main__":
     df = df.drop_duplicates()
     # check data types: --> everything is good
     # print(df.dtypes)
-
     '''
     # ____________________________________________________________________________________
     # HANDLE OUTLIERS AND INCONSISTENCIES
