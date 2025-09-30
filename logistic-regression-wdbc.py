@@ -89,7 +89,11 @@ class LogisticRegression:
 
             # if verbose, it shows the loss every 100 iterations and displays it
             if self.verbose and i % 100 == 0:
-                print(f"Iter {i:4d} – loss: {loss:.6f}")
+                precision = self.precision(self.x, self.y)
+                recall = self.recall(self.x, self.y)
+                f1_score = self.f1_score(self.x, self.y)
+                # 'au_roc = self.au_roc(self.x, self.y)
+                print(f"Iter {i:4d} – loss: {loss:.6f} | precision: {precision:.6f} | recall: {recall:.6f} | f1_score: {f1_score:.6f}")
 
             # tests whether the absolute change in loss is smaller than the tolerance
             if i > 1 and abs(self.loss[-2] - loss) < self.tol:
@@ -220,7 +224,6 @@ class LogisticRegression:
         Comprehensive classification report
         """
         return {
-            'accuracy': self.score(x, y),
             'precision': self.precision(x, y),
             'recall': self.recall(x, y),
             'f1_score': self.f1_score(x, y),

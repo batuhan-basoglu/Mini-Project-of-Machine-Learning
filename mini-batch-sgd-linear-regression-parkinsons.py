@@ -95,7 +95,10 @@ class LinearRegression:
             if self.verbose and epoch % 100 == 0:
                 y_full_pred = x.dot(w_np)
                 mse = ((y_np - y_full_pred) ** 2).mean()
-                print(f"Iter {epoch:5d} | MSE: {mse:.6f}")
+                mae = float(np.mean(np.abs(y_np - y_full_pred)))
+                rmse = (((y_np - y_full_pred) ** 2).mean()) ** 0.5
+                print(f"Iter {epoch:5d} | MSE: {mse:.6f} | MAE: {mae:.6f} | RMSE: {rmse:.6f}")
+
 
         self.w = pd.Series(w_np, index=x.columns) # store weights back as a pandas series
         return self
@@ -206,7 +209,7 @@ if __name__ == "__main__":
     df = df[(df['Jitter(%)'] >= 0) & (df['Jitter(%)'] <= 10)]
     df = df[(df['Shimmer(dB)'] >= 0) & (df['Shimmer(dB)'] <= 10)]
 
-    print(f"Rows after sanity checks: {len(df)}")
+    print(f"Rows after sanity checks: {len(df)}\n")
 
     # check if there are still null values
     assert df.isna().sum().sum() == 0, "There are still some null values."

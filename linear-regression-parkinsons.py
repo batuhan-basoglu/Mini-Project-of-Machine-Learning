@@ -6,8 +6,9 @@ class LinearRegression:
         Constructor for the linear regression with analytical solution. It uses bias. It also
         initializes the weight, mean and standard deviation.
     '''
-    def __init__(self, add_bias): # add degree as value for the polynomial features
+    def __init__(self, add_bias, verbose): # add degree as value for the polynomial features
         self.add_bias = add_bias  # bias to prepend a column of ones (the intercept term)
+        self.verbose = verbose # this is for the different evaluation metrics
         #self.degree = degree  # degree for polynomial expansion (non-linear base)
         self.w = None  # weight/coefficient
         self.mean = None  # used for standardisation
@@ -67,6 +68,12 @@ class LinearRegression:
             w_np.ravel(), # flattens the array into 1-D array
             index=x.columns
         )
+
+        if self.verbose:
+            mse = self.mse(x, y)
+            mae = self.mae(x, y)
+            rmse = self.rmse(x, y)
+            print(f"MSE: {mse:.6f} | MAE: {mae:.6f} | RMSE: {rmse:.6f}")
         return self
 
 
@@ -116,17 +123,6 @@ class LinearRegression:
         y_hat = self.predict(x)
         y_true = pd.Series(y).astype('float64')
         return (((y_true - y_hat) ** 2).mean()) ** 0.5
-
-    def regression_report(self, x: pd.DataFrame, y: pd.Series) -> dict:
-        """
-        Comprehensive classification report
-        """
-        return {
-            'R^2': self.score(x, y),
-            'MAE': self.mae(x, y),
-            'MSE': self.mse(x, y),
-            'RMSE': self.rmse(x, y)
-        }
 
 
 if __name__ == "__main__":
@@ -211,7 +207,7 @@ if __name__ == "__main__":
     df = df[(df['Jitter(%)'] >= 0) & (df['Jitter(%)'] <= 10)]
     df = df[(df['Shimmer(dB)'] >= 0) & (df['Shimmer(dB)'] <= 10)]
 
-    print(f"Rows after sanity checks: {len(df)}")
+    print(f"Rows after sanity checks: {len(df)}\n")
 
     # check if there are still null values
     assert df.isna().sum().sum() == 0, "There are still some null values."
@@ -228,8 +224,8 @@ if __name__ == "__main__":
     y_train, y_test = y.iloc[:n_train], y.iloc[n_train:]
 
     # training of the model
-    model = LinearRegression(add_bias=True)
-    #model = LinearRegression(add_bias=True, degree=2) # using polynomial degree for non-linear base calculation.
+    model = LinearRegression(add_bias=True, verbose=True)
+    #model = LinearRegression(add_bias=True, verbose=true, degree=2) # using polynomial degree for non-linear base calculation.
     model.fit(x_train, y_train)
 
     # evaluation of the model
