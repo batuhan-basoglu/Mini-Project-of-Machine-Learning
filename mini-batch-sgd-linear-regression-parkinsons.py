@@ -171,31 +171,7 @@ if __name__ == "__main__":
     print("\nCorrelation with target variable descending order:")
     print(target_corr)
 
-    '''
-    # repeated fields —> for now I removed them since might not be too relevant (need testing to see if we keep it later)
-    Parkinson = Parkinson.drop(Parkinson.columns[0:3], axis=1)
 
-    # ____________________________________________________________________________________
-    # HANDLE OUTLIERS AND INCONSISTENCIES
-    # https://medium.com/@heyamit10/pandas-outlier-detection-techniques-e9afece3d9e3
-    # if z-score more than 3 --> outllier
-    # print(Parkinson.head().to_string())
-
-    # ____________________________________________________________________________________
-
-    # normalize / scale features? if not already done
-    # !!!!!!!!!!only for X not y!!!!!!!!!!!
-    # normalize = Parkinson.drop(Parkinson.columns[0:6], axis=1)
-    # normalize = (normalize - normalize.mean()) / normalize.std()
-    # Parkinson[Parkinson.columns[6:]] = normalize
-
-    # turn into array for regression
-    x = x.to_numpy()
-    y = y.to_numpy()
-
-    # split data into train 80% / tests datasets 20%
-    x_train, x_test, y_train, y_test = train_test_split(x, y, test_size=0.2, random_state=42, stratify=y)
-'''
     for col in df:
         df[col] = pd.to_numeric(df[col], errors='coerce') # convert columns to numeric values
 

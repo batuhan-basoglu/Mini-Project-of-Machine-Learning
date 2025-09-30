@@ -200,10 +200,6 @@ class LogisticRegression:
         """
         if isinstance(x, pd.DataFrame):
             x = x.values
-
-        if self.w is None:
-            raise ValueError("Model not fitted yet")
-
         # Add bias term if needed
         if x.shape[1] == len(self.w) - 1:
             x = np.column_stack([np.ones(x.shape[0]), x])
@@ -250,37 +246,7 @@ if __name__ == "__main__":
     df = df.drop_duplicates()
     # check data types: --> everything is good
     # print(df.dtypes)
-    '''
-    # ____________________________________________________________________________________
-    # HANDLE OUTLIERS AND INCONSISTENCIES
-    # https://medium.com/@heyamit10/pandas-outlier-detection-techniques-e9afece3d9e3
-    # if z-score more than 3 --> outllier
-    # print(cancer.head().to_string())
 
-    # ____________________________________________________________________________________
-
-    # separate dependent VS independent variables
-    x = cancer.drop(cancer.columns[0], axis=1)
-    y = cancer[1]
-
-    # print(x.head().to_string())
-
-    # normalize data
-    # normalize = cancer.drop(cancer.columns[0], axis=1)
-    # normalize = (normalize - normalize.mean()) / normalize.std()
-    # cancer[cancer.columns[1:]] = normalize
-    # print(cancer.head().to_string())
-
-    # turn into array for regression
-    x = x.to_numpy()
-    y = y.to_numpy()
-
-    # cancer_y = np.asarray(cancer2[0].tolist())
-    # cancer2.drop(cancer2[0], axis = 1, inplace = True)
-
-    # split data into train / tests datasets
-    x_train, x_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42, stratify=y)
-'''
     missing_rows = df[df.isin(['?', 'NA', 'na', '']).any(axis=1)]  # checks null values
     print(f"Rows with null values: {len(missing_rows)}")
 
