@@ -1,7 +1,7 @@
 import numpy as np
 import pandas as pd
 from matplotlib import pyplot as plt
-from sklearn.metrics import confusion_matrix, roc_auc_score
+from sklearn.metrics import confusion_matrix as sk_confusion_matrix, roc_auc_score
 
 
 class LogisticRegression:
@@ -131,7 +131,7 @@ class LogisticRegression:
         y_pred = self.predict(x)
         y_true = np.asarray(y).astype(int)
 
-        cm = confusion_matrix(y_true, y_pred)
+        cm = sk_confusion_matrix(y_true, y_pred, labels=[0, 1])
 
         if normalize:
             cm = cm.astype('float') / cm.sum(axis=1)[:, np.newaxis]
