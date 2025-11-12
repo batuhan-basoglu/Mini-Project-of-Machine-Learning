@@ -1,0 +1,41 @@
+name: 🪞 Push to Mirrors
+
+on: [ push, delete, create ]
+
+# Ensures that only one mirror task will run at a time.
+concurrency:
+  group: git-mirror
+
+jobs:
+  gitlab:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Mirror to GitLab
+        uses: wearerequired/git-mirror-action@v1
+        env:
+          SSH_PRIVATE_KEY: ${{ secrets.ACTIONS_SSH_KEY }}
+        with:
+          source-repo: "git@github.com:batuhan-basoglu/Mini-Project-of-Machine-Learning.git"
+          destination-repo: "git@gitlab.com:batuhan-basoglu/Mini-Project-of-Machine-Learning.git"
+
+  codeberg:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Mirror to Codeberg
+        uses: wearerequired/git-mirror-action@v1
+        env:
+          SSH_PRIVATE_KEY: ${{ secrets.ACTIONS_SSH_KEY }}
+        with:
+          source-repo: "git@github.com:batuhan-basoglu/Mini-Project-of-Machine-Learning.git"
+          destination-repo: "git@codeberg.org:batuhan-basoglu/Mini-Project-of-Machine-Learning.git"
+
+  forgejo:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Mirror to Forgejo
+        uses: wearerequired/git-mirror-action@v1
+        env:
+          SSH_PRIVATE_KEY: ${{ secrets.ACTIONS_SSH_KEY }}
+        with:
+          source-repo: "git@github.com:batuhan-basoglu/Mini-Project-of-Machine-Learning.git"
+          destination-repo: "git@git.batuhan.basoglu.ca:batuhan-basoglu/Mini-Project-of-Machine-Learning.git"
